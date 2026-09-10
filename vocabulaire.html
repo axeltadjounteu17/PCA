@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Prep — Vocabulaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">PCA</span>
+      <span>PCA Prep</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="index.html">Tableau de bord</a>
+      <a href="cours.html">Cours</a>
+      <a href="cas.html">Études de cas</a>
+      <a href="quiz.html">Entraînement</a>
+      <a href="examen.html">Examen blanc</a>
+      <a href="vocabulaire.html">Vocabulaire</a>
+      <span id="countdown" class="countdown" aria-live="polite"></span>
+      <button id="langToggle" class="icon-btn" type="button" aria-label="Changer de langue">FR</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="section">
+    <div class="section__head">
+      <h1>Vocabulaire d'examen</h1>
+      <p class="muted">L'épreuve est en anglais. L'objectif n'est pas de traduire mais de reconnaître directement le terme et le réflexe qu'il déclenche. À partir du 12 septembre, travaille cette page sans passer par le français.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Flashcards</h2>
+    <p class="muted">Clique sur la carte, ou appuie sur Entrée, pour révéler la réponse.</p>
+    <div id="flashcards"></div>
+  </section>
+
+  <section class="section">
+    <h2>Glossaire complet</h2>
+    <label class="sr-only" for="glossarySearch">Rechercher un terme</label>
+    <input id="glossarySearch" type="search" placeholder="Rechercher un terme…"
+           style="width:100%;max-width:420px;padding:0.75rem;border:1px solid var(--c-border);border-radius:8px;font:inherit;background:var(--c-card);color:var(--c-fg);margin-bottom:1.5rem">
+    <div id="glossary"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Distinctions les plus piégeuses : disponibilité contre durabilité, résidence contre exfiltration, cohérence forte contre cohérence à terme, SLI contre SLO contre SLA.</p>
+  </div>
+</footer>
+
+<script src="data/content.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

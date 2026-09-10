@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Prep — Entraînement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">PCA</span>
+      <span>PCA Prep</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="index.html">Tableau de bord</a>
+      <a href="cours.html">Cours</a>
+      <a href="cas.html">Études de cas</a>
+      <a href="quiz.html">Entraînement</a>
+      <a href="examen.html">Examen blanc</a>
+      <a href="vocabulaire.html">Vocabulaire</a>
+      <span id="countdown" class="countdown" aria-live="polite"></span>
+      <button id="langToggle" class="icon-btn" type="button" aria-label="Changer de langue">FR</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="section">
+    <div class="section__head">
+      <h1>Entraînement</h1>
+      <p class="muted">Correction immédiate après chaque réponse, avec la réfutation de chaque option écartée. Lis toujours les réfutations, y compris quand tu as juste : c'est là que se construit le réflexe d'arbitrage.</p>
+    </div>
+
+    <div class="filters" id="quizFilters" role="group" aria-label="Filtrer les questions"></div>
+    <div id="quiz"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Questions originales. Elles reproduisent le format et le niveau d'arbitrage de l'examen, jamais son contenu réel.</p>
+  </div>
+</footer>
+
+<script src="data/content.js"></script>
+<script src="data/questions-d1.js"></script>
+<script src="data/questions-d2.js"></script>
+<script src="data/questions-d3.js"></script>
+<script src="data/questions-d4.js"></script>
+<script src="data/questions-d5.js"></script>
+<script src="data/questions-d6.js"></script>
+<script src="data/questions-cases.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

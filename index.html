@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Prep — Tableau de bord</title>
+<meta name="description" content="Préparation intensive à la certification Google Cloud Professional Cloud Architect.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">PCA</span>
+      <span>PCA Prep</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="index.html">Tableau de bord</a>
+      <a href="cours.html">Cours</a>
+      <a href="cas.html">Études de cas</a>
+      <a href="quiz.html">Entraînement</a>
+      <a href="examen.html">Examen blanc</a>
+      <a href="vocabulaire.html">Vocabulaire</a>
+      <span id="countdown" class="countdown" aria-live="polite"></span>
+      <button id="langToggle" class="icon-btn" type="button" aria-label="Changer de langue">FR</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="section">
+    <div class="section__head">
+      <h1>Professional Cloud Architect</h1>
+      <p class="muted">Examen le mercredi 16 septembre 2026 à 11h00 &middot; version v6.1 &middot; 2 heures, 50 à 60 questions, en anglais.</p>
+    </div>
+
+    <div class="grid grid--4" id="stats"></div>
+  </section>
+
+  <section class="section">
+    <h2>Méthode de résolution</h2>
+    <p class="muted">L'examen ne demande presque jamais « que fait le service X ». Il demande, parmi plusieurs architectures qui fonctionnent toutes, laquelle respecte le mieux les contraintes de l'énoncé. Applique ces six étapes à chaque question.</p>
+    <div id="method"></div>
+  </section>
+
+  <section class="section">
+    <h2>Progression par domaine</h2>
+    <p class="muted">Le pourcentage entre parenthèses est le poids réel de la section à l'examen. Concentre l'effort là où le taux est faible <em>et</em> le poids élevé.</p>
+    <div class="card" id="domainProgress"></div>
+  </section>
+
+  <section class="section">
+    <h2>Plan de révision</h2>
+    <p class="muted">Sept jours pleins, du 9 au 15 septembre. Bascule volontaire vers l'anglais à partir du 12 : l'examen n'existe qu'en anglais et en japonais.</p>
+    <div class="grid grid--2" style="align-items:start">
+      <div class="stat" id="planProgress"></div>
+      <div class="alert">
+        Ne déplace jamais une séance au lendemain. Si une journée déborde, réduis sa durée mais garde la séquence : c'est l'enchaînement français puis anglais qui compte.
+      </div>
+    </div>
+    <div class="stack" id="plan" style="margin-top:1.5rem"></div>
+  </section>
+
+  <section class="section">
+    <h2>Rappels pour le jour J</h2>
+    <div class="card" id="dday"></div>
+  </section>
+
+  <section class="section">
+    <h2>Données locales</h2>
+    <div class="card stack">
+      <p class="muted">Ta progression est enregistrée uniquement dans ce navigateur, via <code>localStorage</code>. Rien n'est envoyé sur un serveur. Vider les données du site effacera donc l'historique.</p>
+      <div class="btn-row">
+        <button id="resetProgress" class="btn btn--danger" type="button">Réinitialiser la progression</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Support de préparation personnel. Questions originales conçues pour entraîner le raisonnement d'arbitrage : elles ne reproduisent aucune question réelle d'examen.</p>
+    <p>Référence officielle : <a href="https://cloud.google.com/learn/certification/guides/professional-cloud-architect" rel="noopener noreferrer" target="_blank">guide d'examen Professional Cloud Architect</a>.</p>
+  </div>
+</footer>
+
+<script src="data/content.js"></script>
+<script src="data/questions-d1.js"></script>
+<script src="data/questions-d2.js"></script>
+<script src="data/questions-d3.js"></script>
+<script src="data/questions-d4.js"></script>
+<script src="data/questions-d5.js"></script>
+<script src="data/questions-d6.js"></script>
+<script src="data/questions-cases.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

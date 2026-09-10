@@ -1,0 +1,28 @@
+# Dépendances
+node_modules/
+
+# Documents de travail personnels — ne jamais publier
+*.docx
+*.pdf
+*.doc
+.~lock.*#
+*.skill
+
+# Environnements et secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Vercel
+.vercel

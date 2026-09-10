@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Prep — Cours et arbres de décision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">PCA</span>
+      <span>PCA Prep</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="index.html">Tableau de bord</a>
+      <a href="cours.html">Cours</a>
+      <a href="cas.html">Études de cas</a>
+      <a href="quiz.html">Entraînement</a>
+      <a href="examen.html">Examen blanc</a>
+      <a href="vocabulaire.html">Vocabulaire</a>
+      <span id="countdown" class="countdown" aria-live="polite"></span>
+      <button id="langToggle" class="icon-btn" type="button" aria-label="Changer de langue">FR</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="section">
+    <div class="section__head">
+      <h1>Cours et arbres de décision</h1>
+      <p class="muted">Le contenu que tu dois pouvoir restituer de mémoire. Reconstitue les tableaux sur une feuille avant de les relire : la récitation active vaut trois fois la relecture.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Well-Architected Framework</h2>
+    <div class="alert">
+      Le guide d'examen v6.1 énumère <strong>six</strong> piliers, durabilité incluse. Certaines pages de documentation antérieures n'en listaient que cinq : c'est la version à six piliers qui fait foi pour l'examen.
+    </div>
+    <div id="waf" style="margin-top:1.5rem"></div>
+  </section>
+
+  <section class="section">
+    <h2>Mots-clés déclencheurs</h2>
+    <p class="muted">C'est la révision la plus rentable de toutes. Repérer le signal dans l'énoncé élimine souvent trois options d'un coup.</p>
+    <div id="triggers"></div>
+  </section>
+
+  <section class="section">
+    <h2>Arbres de décision</h2>
+    <p class="muted">Colonne « piège » : l'erreur que l'examen cherche précisément à provoquer.</p>
+    <div id="decisions"></div>
+  </section>
+
+  <section class="section">
+    <h2>Méthode en six étapes</h2>
+    <div id="method"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Référence officielle : <a href="https://cloud.google.com/learn/certification/guides/professional-cloud-architect" rel="noopener noreferrer" target="_blank">guide d'examen Professional Cloud Architect</a>.</p>
+  </div>
+</footer>
+
+<script src="data/content.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
