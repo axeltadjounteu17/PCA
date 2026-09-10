@@ -16,6 +16,7 @@
       window.PCA_QUESTIONS_D4 || [],
       window.PCA_QUESTIONS_D5 || [],
       window.PCA_QUESTIONS_D6 || [],
+      window.PCA_QUESTIONS_D7 || [],
       window.PCA_QUESTIONS_CASES || []
     );
 

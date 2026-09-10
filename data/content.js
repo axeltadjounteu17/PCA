@@ -69,7 +69,7 @@ window.PCA_METHOD = [
   {
     n: 2,
     title: "Extraire les contraintes",
-    body: "Métier, sécurité, conformité, performance, fiabilité, coût, compétences de l'équipe. Une contrainte chiffrée ou explicite pèse toujours plus qu'une préférence implicite. Repère celle qui élimine."
+    body: "Métier, sécurité, conformité, performance, fiabilité, coût, compétences de l'équipe. Une contrainte chiffrée ou explicite pèse toujours plus qu'une préférence implicite. Repère celle qui élimine. Astuce concrète : la contrainte décisive se cache très souvent dans la dernière phrase de l'énoncé, celle qu'on lit trop vite."
   },
   {
     n: 3,
@@ -152,7 +152,13 @@ window.PCA_TRIGGERS = [
   { en: "no VPN, any network, internal app", fr: "application interne sans VPN", reflex: "Identity-Aware Proxy." },
   { en: "only trusted images in production", fr: "seules des images de confiance en production", reflex: "Binary Authorization." },
   { en: "no long-lived keys, external workload", fr: "charge externe sans clé statique", reflex: "Workload Identity Federation." },
-  { en: "human-in-the-loop", fr: "supervision humaine", reflex: "Jamais d'action IA à risque sans revue humaine, journalisation et garde-fous." }
+  { en: "human-in-the-loop", fr: "supervision humaine", reflex: "Jamais d'action IA à risque sans revue humaine, journalisation et garde-fous." },
+  { en: "PostgreSQL hitting performance limits / HTAP", fr: "PostgreSQL qui plafonne, charge mixte", reflex: "AlloyDB for PostgreSQL, en restant régional." },
+  { en: "expose APIs to external partners", fr: "exposer des API à des partenaires", reflex: "Apigee, pour les quotas, les clés et l'analytique." },
+  { en: "discover and mask PII / PHI", fr: "détecter et masquer des données sensibles", reflex: "Sensitive Data Protection, avant le stockage." },
+  { en: "block DDoS and application attacks", fr: "bloquer DDoS et attaques applicatives", reflex: "Cloud Armor. Ce n'est pas de l'authentification." },
+  { en: "accessed less than once a month / quarter / year", fr: "accès mensuel, trimestriel, annuel", reflex: "Nearline, Coldline, Archive respectivement." },
+  { en: "highest disk throughput, data can be lost", fr: "débit disque maximal, données éphémères", reflex: "Local SSD. Attention : tout est perdu à l'arrêt de la VM." }
 ];
 
 /* ----- Arbres de décision ----- */
@@ -171,13 +177,26 @@ window.PCA_DECISIONS = [
   {
     title: "Données — quelle base ?",
     rows: [
-      ["Relationnel régional, OLTP classique", "Cloud SQL", "Simple, HA régionale, PITR", "Ne pas surdimensionner vers Spanner"],
-      ["Relationnel mondial + cohérence forte", "Spanner", "Cohérence externe, échelle horizontale", "Coût et refonte du schéma"],
-      ["Série temporelle, très haut débit, accès par clé", "Bigtable", "Latence de quelques millisecondes", "Pas de SQL ad hoc"],
-      ["Analytique, agrégations, historique long", "BigQuery", "Stockage et calcul séparés", "Pas une base transactionnelle"],
-      ["État applicatif mobile ou web, temps réel", "Firestore", "Synchronisation et hors ligne", "Transactions à portée limitée"],
-      ["Fichiers, médias, sauvegardes, archives", "Cloud Storage", "Classes et cycle de vie", "Ne jamais y stocker de l'état transactionnel"],
-      ["Cache, sessions, compteurs", "Memorystore", "Latence sub-milliseconde", "Volatile par nature"]
+      ["Relationnel régional, OLTP classique", "Cloud SQL", "Simple, HA régionale, PITR. PostgreSQL, MySQL, SQL Server", "Ne pas surdimensionner vers Spanner"],
+      ["Relationnel mondial + cohérence forte", "Spanner", "Cohérence externe, échelle horizontale, SLA 99,999 %", "Coût et refonte du schéma si la portée est régionale"],
+      ["PostgreSQL qui plafonne, ou charge mixte HTAP", "AlloyDB for PostgreSQL", "Moteur optimisé Google, 100 % compatible PostgreSQL, pgvector pour l'IA", "Régional : ne remplace pas Spanner sur un besoin mondial"],
+      ["Série temporelle, très haut débit, accès par clé", "Bigtable", "Latence inférieure à 10 ms, débit massif", "Aucune jointure SQL ni requête ad hoc"],
+      ["Analytique, agrégations, historique long", "BigQuery", "Stockage et calcul séparés, échelle pétaoctet, BigQuery ML", "Pas une base transactionnelle"],
+      ["État applicatif mobile ou web, temps réel", "Firestore", "Synchronisation et mode hors ligne", "Transactions à portée limitée"],
+      ["Cache, sessions, compteurs", "Memorystore", "Latence sub-milliseconde, soulage la base principale", "Volatile par nature"]
+    ]
+  },
+  {
+    title: "Stockage — objet, bloc ou fichier ?",
+    rows: [
+      ["Fichiers, médias, sauvegardes, data lake", "Cloud Storage (objet)", "Classes de stockage et règles de cycle de vie", "Ne jamais y placer de l'état transactionnel"],
+      ["Disque d'une VM ou d'un cluster", "Persistent Disk (bloc)", "Survit à l'arrêt de la VM. Standard ou SSD", "Attaché à une zone"],
+      ["Besoin de performance extrême sur disque éphémère", "Local SSD", "Débit très élevé", "Piège classique : les données sont PERDUES à l'arrêt de la VM"],
+      ["Système de fichiers partagé POSIX, accès concurrent", "Filestore (NFS)", "Montage par plusieurs machines", "Plus coûteux que le stockage objet"],
+      ["Accès fréquent", "Classe Standard", "Aucun frais de récupération", "Coût de stockage le plus élevé"],
+      ["Accès moins d'une fois par mois", "Classe Nearline", "Sauvegardes mensuelles", "Frais de récupération"],
+      ["Accès moins d'une fois par trimestre", "Classe Coldline", "Archivage légal court", "Frais de récupération plus élevés"],
+      ["Accès moins d'une fois par an", "Classe Archive", "Conservation longue très économique", "Restitution la plus coûteuse"]
     ]
   },
   {
@@ -188,7 +207,23 @@ window.PCA_DECISIONS = [
       ["Pas de PoP Google à proximité", "Partner Interconnect", "Via un opérateur", "Dépendance au partenaire"],
       ["Consommer ou publier un service en privé", "Private Service Connect", "Pas de contrainte de plages d'IP", "À préférer au peering"],
       ["Relier deux VPC de la même organisation", "VPC Network Peering", "Simple et gratuit en interne", "Non transitif, IP non chevauchantes"],
-      ["Centraliser le réseau de plusieurs projets", "Shared VPC", "Gouvernance centralisée", "Même organisation uniquement"]
+      ["Centraliser le réseau de plusieurs projets", "Shared VPC", "Une équipe réseau gère les sous-réseaux, les équipes déploient dans des projets de service", "Même organisation uniquement"],
+      ["Répartir le trafic mondial, bascule inter-régions", "Cloud Load Balancing global", "Anycast, bascule automatique", "Ne met rien en cache par lui-même"],
+      ["Servir du contenu statique à faible latence", "Cloud CDN", "Cache en périphérie", "Inutile sur du contenu personnalisé non cacheable"],
+      ["Bloquer attaques applicatives et DDoS", "Cloud Armor", "Pare-feu applicatif et anti-DDoS", "Ce n'est pas de l'authentification"],
+      ["Exposer des API à des partenaires externes", "Apigee", "Passerelle d'API : quotas, clés, analytique, monétisation", "Surdimensionné pour un appel interne simple"]
+    ]
+  },
+  {
+    title: "Livraison et observabilité",
+    rows: [
+      ["Décrire l'infrastructure de façon reproductible", "Terraform", "Déclaratif, versionné, revu en pull request", "État distant et verrouillage obligatoires en équipe"],
+      ["Construire et tester à chaque commit", "Cloud Build", "CI/CD managé", "Ne gère pas les stratégies de déploiement avancées"],
+      ["Stocker et analyser les images de conteneur", "Artifact Registry", "Analyse de vulnérabilités intégrée", "Détecter n'est pas bloquer : voir Binary Authorization"],
+      ["Déploiement progressif, canari, retour arrière", "Cloud Deploy", "Pilote la promotion entre environnements", "Exige des SLO pour décider du retour arrière"],
+      ["Centraliser et corréler les journaux", "Cloud Logging", "Recherche, export vers BigQuery", "Les journaux d'accès aux données ne sont pas actifs par défaut"],
+      ["Alerter sur une dégradation réelle", "Cloud Monitoring", "Alertes fondées sur des SLO", "Ne jamais alerter sur chaque métrique disponible"],
+      ["Localiser la latence dans une chaîne de microservices", "Cloud Trace", "Traçage distribué, chemin critique", "Nécessite l'instrumentation des services"]
     ]
   },
   {
@@ -201,7 +236,17 @@ window.PCA_DECISIONS = [
       ["Accès utilisateur à une app interne", "Identity-Aware Proxy", "Authentifie en amont de l'app", "L'app n'a rien à implémenter"],
       ["Identité externe sans clé statique", "Workload Identity Federation", "Jetons de courte durée", "Remplace les clés JSON"],
       ["N'admettre que des images vérifiées", "Binary Authorization", "Contrôle d'admission", "Nécessite une chaîne d'attestation"],
+      ["Découvrir et masquer des données sensibles", "Sensitive Data Protection", "Détection et masquage des PII et PHI avant stockage", "Traite le contenu, pas le périmètre"],
       ["Secrets applicatifs", "Secret Manager", "Versionnement et rotation", "Jamais dans le code"]
+    ]
+  },
+  {
+    title: "Migration — les 4R par effort et valeur",
+    rows: [
+      ["Délai court, sortie de centre de données, legacy intransigeant", "Rehost (lift and shift)", "Effort faible, valeur faible. Compute Engine ou VMware Engine", "Reporte la modernisation sans la supprimer"],
+      ["Réduire la charge opérationnelle sans réécrire le code", "Replatform (lift, tinker and shift)", "Effort moyen. Conteneurisation sur GKE, passage à Cloud SQL", "Gains limités par l'architecture d'origine"],
+      ["Besoin vital de scalabilité, refonte justifiée par le retour sur investissement", "Refactor (re-architect)", "Effort élevé, valeur élevée. Microservices serverless, Spanner", "Irréaliste sous forte contrainte de délai"],
+      ["Fonction non différenciante pour le métier", "Repurchase (drop and shop)", "Remplacement par un produit SaaS", "Reprise des données et des processus à prévoir"]
     ]
   }
 ];
@@ -211,34 +256,74 @@ window.PCA_CASES = [
   {
     id: "altostrat",
     name: "Altostrat Media",
-    sector: "Média et divertissement",
-    profile: "Chaîne de traitement vidéo, stockage objet, diffusion mondiale, métadonnées et IA appliquée au contenu.",
-    watch: ["Volume de dépôts très irrégulier", "Fichiers sources volumineux", "Audience internationale", "Coût du catalogue à long terme"],
-    reflexes: ["Architecture événementielle plutôt qu'interrogation périodique", "CDN pour l'audience répartie", "Classes de stockage différenciées entre sources et fichiers de diffusion"]
+    sector: "Média et divertissement — streaming",
+    profile: "Bibliothèque de podcasts et de vidéos, chaîne de transcodage, diffusion mondiale, analytique métier et IA générative appliquée au contenu.",
+    watch: [
+      "Volume de dépôts très irrégulier",
+      "Fichiers sources volumineux et coût du catalogue à long terme",
+      "Diffusion mondiale à faible latence",
+      "Transcodage à déclencher au dépôt"
+    ],
+    reflexes: [
+      "Coût du stockage média : Cloud Storage avec règles de cycle de vie, Standard vers Coldline ou Archive",
+      "Transcodage événementiel : Cloud Run ou Cloud Run functions déclenché par le dépôt, jamais d'interrogation périodique",
+      "Diffusion mondiale : Cloud CDN devant un équilibreur de charge global",
+      "Séparer les fichiers sources, jamais relus, des fichiers de diffusion, lus en permanence"
+    ]
   },
   {
     id: "cymbal",
     name: "Cymbal Retail",
-    sector: "Commerce de détail",
-    profile: "Catalogue produit, recommandations, analytique de parcours, trafic très saisonnier.",
-    watch: ["Pics promotionnels", "Lecture massive du catalogue", "Transactions de commande", "Fraîcheur des tableaux de bord"],
-    reflexes: ["Séparer la charge de lecture du catalogue et la charge transactionnelle", "Cache et CDN sur le catalogue", "Pub/Sub, Dataflow et BigQuery pour le flux d'événements"]
+    sector: "Commerce de détail — e-commerce",
+    profile: "Catalogue produit hétérogène, personnalisation par IA, analytique de parcours d'achat, trafic très saisonnier.",
+    watch: [
+      "Base existante à moderniser, MySQL et SQL Server",
+      "Pics promotionnels et lecture massive du catalogue",
+      "Événements de commande asynchrones",
+      "IA générative pour les visuels et les attributs produit"
+    ],
+    reflexes: [
+      "Modernisation de la base : Cloud SQL, et Spanner seulement si un trafic mondial exige une cohérence forte",
+      "Découplage de l'interface et du backend de commande : Pub/Sub",
+      "Flux d'événements : Pub/Sub, Dataflow puis BigQuery",
+      "IA générative : Vertex AI avec validation humaine avant publication"
+    ]
   },
   {
     id: "ehr",
     name: "EHR Healthcare",
-    sector: "Santé",
-    profile: "Données patient sensibles, exigences de conformité, multi-locataires, connectivité hybride, reprise après sinistre.",
-    watch: ["Isolation entre établissements clients", "Interdiction de sortie des données", "Maîtrise du chiffrement par le client", "Traçabilité des accès patient"],
-    reflexes: ["Projet comme frontière d'isolation", "VPC-SC pour l'exfiltration", "CMEK par client", "Journaux d'accès aux données à activer explicitement"]
+    sector: "Santé — SaaS médical",
+    profile: "Sortie de centre de données, données patient sensibles relevant du PHI, intégrations avec des systèmes legacy, multi-locataires.",
+    watch: [
+      "Connexion aux assureurs restés sur site",
+      "Protection stricte des données patient et conformité",
+      "Applications déjà conteneurisées",
+      "Isolation entre établissements clients et traçabilité des accès"
+    ],
+    reflexes: [
+      "Liaison vers les partenaires sur site : Cloud Interconnect pour la bande passante dédiée et le SLA",
+      "Protection du PHI : VPC Service Controls contre l'exfiltration, complété par Sensitive Data Protection",
+      "Applications déjà conteneurisées : GKE, éventuellement en transition hybride",
+      "Projet comme frontière d'isolation, CMEK par client, journaux d'accès aux données activés explicitement"
+    ]
   },
   {
     id: "knightmotives",
     name: "KnightMotives Automotive",
-    sector: "Automobile",
-    profile: "Télémétrie de véhicules connectés, très haut débit d'écriture, simulation, IA et apprentissage automatique.",
-    watch: ["Débit d'écriture massif", "Lecture de série temporelle par véhicule", "Analyse de flotte agrégée", "Sécurité des modèles et cloisonnement documentaire"],
-    reflexes: ["Bigtable pour la télémétrie, BigQuery pour l'analyse de flotte", "Conception de la clé de ligne", "RAG filtré par droits, protection des entrées et sorties du modèle"]
+    sector: "Automobile — véhicules connectés",
+    profile: "Télémétrie massive de flotte, partenaires externes, connectivité intermittente, simulation et apprentissage automatique.",
+    watch: [
+      "Ingestion de milliards d'événements de capteurs",
+      "Souveraineté des données en Europe",
+      "Partage de données avec les concessionnaires",
+      "Sécurité des modèles d'IA et cloisonnement documentaire"
+    ],
+    reflexes: [
+      "Chaîne de télémétrie : Pub/Sub pour l'ingestion, Dataflow pour le traitement, Bigtable pour la série temporelle sous 10 ms",
+      "Souveraineté : Organization Policy limitant les ressources aux régions de l'Union européenne",
+      "Partage avec les concessionnaires : Apigee pour sécuriser et gouverner l'accès externe",
+      "Bigtable pour l'accès opérationnel, BigQuery pour l'analyse de flotte agrégée : les deux coexistent"
+    ]
   }
 ];
 
@@ -367,7 +452,14 @@ window.PCA_GLOSSARY = [
   { en: "runbook", fr: "procédure d'exploitation", note: "Marche à suivre documentée pour une situation donnée." },
   { en: "prompt injection", fr: "injection d'instruction", note: "Détournement d'un modèle par des instructions malveillantes." },
   { en: "RAG", fr: "génération augmentée par récupération", note: "Le modèle s'appuie sur des documents récupérés. La récupération doit filtrer selon les droits." },
-  { en: "human-in-the-loop", fr: "supervision humaine", note: "Validation humaine avant une action à risque." }
+  { en: "human-in-the-loop", fr: "supervision humaine", note: "Validation humaine avant une action à risque." },
+  { en: "HTAP", fr: "traitement transactionnel et analytique hybride", note: "Base combinant OLTP et OLAP sans réplication lourde (ex. AlloyDB)." },
+  { en: "blue-green deployment", fr: "déploiement bleu-vert", note: "Deux environnements identiques en parallèle, bascule instantanée du routeur sans indisponibilité." },
+  { en: "rolling update", fr: "mise à jour progressive", note: "Remplacement progressif des instances ou pods sans interruption de service." },
+  { en: "PITR", fr: "restauration à un point précis dans le temps", note: "Capacité d'une base managée à restaurer son état exact à une seconde précise (Cloud SQL, Spanner, AlloyDB)." },
+  { en: "cold start", fr: "démarrage à froid", note: "Délai d'initialisation lors de la création d'une nouvelle instance serverless (Cloud Run, Cloud Run functions)." },
+  { en: "data gravity", fr: "gravité des données", note: "Principe selon lequel les calculs et applications doivent être déplacés au plus près des volumes massifs de données pour éviter latence et coûts d'egress." },
+  { en: "lift and shift", fr: "migration sans modification", note: "Stratégie Rehost : déplacer les machines virtuelles telles quelles vers le cloud sans toucher au code." }
 ];
 
 /* ----- Rappels pour le jour J ----- */
