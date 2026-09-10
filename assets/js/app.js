@@ -17,6 +17,7 @@
       window.PCA_QUESTIONS_D5 || [],
       window.PCA_QUESTIONS_D6 || [],
       window.PCA_QUESTIONS_D7 || [],
+      window.PCA_QUESTIONS_D8 || [],
       window.PCA_QUESTIONS_CASES || []
     );
 
@@ -812,6 +813,80 @@
       });
     }
 
+    // Historique des examens blancs
+    const examHistHost = $("#examHistory");
+    if (examHistHost) {
+      clear(examHistHost);
+      const exams = (S.exams || []).slice().reverse();
+      if (!exams.length) {
+        const empty = el("div", { class: "stack" });
+        empty.appendChild(
+          el("p", {
+            class: "muted",
+            text: S.lang === "fr"
+              ? "Aucun examen blanc n'a encore été complété. Lance une session de 50 questions pour mesurer ton niveau."
+              : "No mock exam completed yet. Launch a 50-question session to benchmark your level."
+          })
+        );
+        const btnRow = el("div", { class: "btn-row" });
+        const startBtn = el("a", {
+          class: "btn btn--primary",
+          attrs: { href: "examen.html" },
+          text: S.lang === "fr" ? "Démarrer un examen blanc" : "Start mock exam"
+        });
+        btnRow.appendChild(startBtn);
+        empty.appendChild(btnRow);
+        examHistHost.appendChild(empty);
+      } else {
+        const table = el("table");
+        const thead = el("thead");
+        thead.appendChild(
+          el("tr", {}, [
+            el("th", { text: S.lang === "fr" ? "Date" : "Date" }),
+            el("th", { text: S.lang === "fr" ? "Score" : "Score" }),
+            el("th", { text: S.lang === "fr" ? "Réussite" : "Percentage" }),
+            el("th", { text: S.lang === "fr" ? "Durée" : "Duration" }),
+            el("th", { text: S.lang === "fr" ? "Mention" : "Status" })
+          ])
+        );
+        table.appendChild(thead);
+        const tbody = el("tbody");
+        exams.forEach(function (e) {
+          const d = new Date(e.at);
+          const dateStr = d.toLocaleDateString(S.lang === "fr" ? "fr-FR" : "en-US", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+          const percentage = pct(e.score, e.total);
+          const durMin = Math.floor((e.durationSec || 0) / 60);
+          const durSec = (e.durationSec || 0) % 60;
+          const durStr = durMin + " min " + durSec + " s";
+          const pass = percentage >= 75;
+
+          const badge = el("span", {
+            class: "badge " + (pass ? "badge--accent" : "badge--danger"),
+            text: pass
+              ? (S.lang === "fr" ? "Prêt (≥75%)" : "Pass (≥75%)")
+              : (S.lang === "fr" ? "À approfondir" : "Needs review")
+          });
+
+          tbody.appendChild(
+            el("tr", {}, [
+              el("td", { text: dateStr }),
+              el("td", {}, el("strong", { text: e.score + " / " + e.total })),
+              el("td", { text: percentage + " %" }),
+              el("td", { class: "muted", text: durStr }),
+              el("td", {}, badge)
+            ])
+          );
+        });
+        table.appendChild(tbody);
+        examHistHost.appendChild(el("div", { class: "table-scroll" }, table));
+      }
+    }
+
     // Réinitialisation de la progression.
     const reset = $("#resetProgress");
     if (reset) {
@@ -1136,5 +1211,16 @@
     initPractice();
     initExam();
     initFlashcards();
+
+    // Enregistrement du Service Worker pour fonctionnement hors-ligne (PWA)
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").then(function (reg) {
+          console.log("PCA Prep SW enregistré :", reg.scope);
+        }).catch(function (err) {
+          console.warn("PCA Prep SW non enregistré :", err);
+        });
+      });
+    }
   });
 })();

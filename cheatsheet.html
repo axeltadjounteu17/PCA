@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCA Prep — Aide-mémoire & Synthèse Imprimable</title>
+<meta name="description" content="Synthèse condensée et imprimable des arbres de décision, déclencheurs et études de cas pour la certification Google Cloud Professional Cloud Architect.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#7C3AED">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.sheet-section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 2rem;
+}
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+.dense-table {
+  width: 100%;
+  font-size: 0.85rem;
+  border-collapse: collapse;
+}
+.dense-table th, .dense-table td {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--c-border);
+}
+.dense-table th {
+  background: var(--c-card-alt, rgba(124, 58, 237, 0.08));
+  text-align: left;
+}
+.tag-callout {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--c-primary);
+  background: rgba(124, 58, 237, 0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10pt;
+  }
+  .site-header, .site-footer, .no-print, .skip-link {
+    display: none !important;
+  }
+  .wrap {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .sheet-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 1.2rem;
+  }
+  .dense-table th, .dense-table td {
+    border: 1px solid #ccc !important;
+    padding: 3px 6px !important;
+  }
+  .dense-table th {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.2rem; margin-top: 1rem; margin-bottom: 0.4rem; border-bottom: 1px solid #ccc; }
+  h3 { font-size: 1rem; margin-top: 0.6rem; margin-bottom: 0.3rem; }
+  a { text-decoration: none; color: #000; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <span class="brand__mark" aria-hidden="true">PCA</span>
+      <span>PCA Prep</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="index.html">Tableau de bord</a>
+      <a href="cours.html">Cours</a>
+      <a href="cas.html">Études de cas</a>
+      <a href="cheatsheet.html" aria-current="page">Aide-mémoire</a>
+      <a href="quiz.html">Entraînement</a>
+      <a href="examen.html">Examen blanc</a>
+      <a href="vocabulaire.html">Vocabulaire</a>
+      <span id="countdown" class="countdown" aria-live="polite"></span>
+      <button id="langToggle" class="icon-btn" type="button" aria-label="Changer de langue">FR</button>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="sheet-header">
+    <div>
+      <h1>PCA Strategic Cheat Sheet — Synthèse d'Examen</h1>
+      <p class="muted">Google Cloud Certified Professional Cloud Architect &middot; Format condensé pour révision et impression A4</p>
+    </div>
+    <div class="no-print">
+      <button onclick="window.print()" class="btn btn--primary" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        Imprimer / Exporter PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- SECTION 1 : TRIGGERS & RÉFLEXES -->
+  <section class="sheet-section">
+    <h2>1. Mots-clés déclencheurs (Triggers &amp; Réflexes immédiats)</h2>
+    <div class="table-scroll">
+      <table class="dense-table">
+        <thead>
+          <tr>
+            <th style="width:30%">Signal dans l'énoncé (EN)</th>
+            <th style="width:25%">Signification</th>
+            <th style="width:45%">Réflexe architectural Google Cloud</th>
+          </tr>
+        </thead>
+        <tbody id="cheatTriggers"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 2 : ARBRES DE DÉCISION -->
+  <section class="sheet-section">
+    <h2>2. Arbres de décision des services fondamentaux</h2>
+    <div id="cheatDecisions"></div>
+  </section>
+
+  <!-- SECTION 3 : ÉTUDES DE CAS OFFICIELLES -->
+  <section class="sheet-section">
+    <h2>3. Synthèse des 4 Études de cas officielles</h2>
+    <div class="sheet-grid" id="cheatCases"></div>
+  </section>
+
+  <!-- SECTION 4 : SRE & FORMULES CLÉS -->
+  <section class="sheet-section">
+    <h2>4. Fiabilité, SRE &amp; Formules indispensables</h2>
+    <div class="sheet-grid">
+      <div class="card stack">
+        <h3>SLI, SLO, SLA &amp; Error Budget</h3>
+        <p><strong>SLI (Indicator)</strong> : mesure factuelle du service (ex. % de requêtes réussies &lt; 200ms).</p>
+        <p><strong>SLO (Objective)</strong> : cible interne convenue avec l'équipe produit (ex. 99,9 % de requêtes réussies sur 30 jours).</p>
+        <p><strong>SLA (Agreement)</strong> : engagement contractuel externe avec pénalités financières (ex. 99,5 %). Règle : <em>SLA &lt; SLO</em>.</p>
+        <p><strong>Budget d'erreur</strong> : <code>100% - SLO</code>. Si le SLO est de 99,9 %, le budget d'erreur est de 0,1 % (43 min/mois d'indisponibilité tolérée). Arbitre entre nouvelles fonctionnalités et fiabilisation.</p>
+      </div>
+      <div class="card stack">
+        <h3>Stratégies de déploiement</h3>
+        <p><strong>Canary (Canari)</strong> : route 5 % (puis 25 %, 100 %) du trafic réel vers la nouvelle version pour surveiller les métriques et SLO avant promotion complète.</p>
+        <p><strong>Blue-Green</strong> : deux environnements identiques complets. La bascule du trafic au niveau du répartiteur est instantanée (0 downtime), rollback immédiat.</p>
+        <p><strong>Rolling Update</strong> : remplacement progressif des instances sans capacité doublée mais avec cohabitation de deux versions pendant la transition.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Aide-mémoire personnel &middot; Conforme Guide d'examen Google Cloud PCA v6.1.</p>
+  </div>
+</footer>
+
+<script src="data/content.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // 1. Remplir les triggers
+  const tb = document.getElementById("cheatTriggers");
+  if (tb && window.PCA_TRIGGERS) {
+    window.PCA_TRIGGERS.forEach(t => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><span class="tag-callout">${t.en}</span></td><td>${t.fr}</td><td><strong>${t.reflex}</strong></td>`;
+      tb.appendChild(tr);
+    });
+  }
+
+  // 2. Remplir les arbres de décision
+  const db = document.getElementById("cheatDecisions");
+  if (db && window.PCA_DECISIONS) {
+    window.PCA_DECISIONS.forEach(sec => {
+      const h3 = document.createElement("h3");
+      h3.textContent = sec.title;
+      h3.style.marginTop = "1rem";
+      db.appendChild(h3);
+
+      const t = document.createElement("table");
+      t.className = "dense-table";
+      let rows = sec.rows.map(r => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td><td class="muted">${r[3]}</td></tr>`).join("");
+      t.innerHTML = `<thead><tr><th style="width:25%">Besoin</th><th style="width:20%">Service retenu</th><th style="width:30%">Pourquoi</th><th style="width:25%">Piège d'examen</th></tr></thead><tbody>${rows}</tbody>`;
+      const scroll = document.createElement("div");
+      scroll.className = "table-scroll";
+      scroll.appendChild(t);
+      db.appendChild(scroll);
+    });
+  }
+
+  // 3. Remplir les cas d'usage
+  const cb = document.getElementById("cheatCases");
+  if (cb && window.PCA_CASES) {
+    window.PCA_CASES.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "card stack";
+      let watch = c.watch.map(w => `<li>${w}</li>`).join("");
+      let refs = c.reflexes.map(r => `<li><strong>${r}</strong></li>`).join("");
+      card.innerHTML = `<h3>${c.name}</h3><p class="muted"><em>${c.sector}</em></p><p style="font-size:0.9rem">${c.profile}</p><h4>Points d'attention :</h4><ul style="font-size:0.85rem;padding-left:1.2rem">${watch}</ul><h4>Réflexes d'architecture :</h4><ul style="font-size:0.85rem;padding-left:1.2rem">${refs}</ul>`;
+      cb.appendChild(card);
+    });
+  }
+
+  // Thème & Langue synchronisés
+  try {
+    const s = JSON.parse(localStorage.getItem("pca-prep-v1") || "{}");
+    if (s.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  } catch(e) {}
+});
+</script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
