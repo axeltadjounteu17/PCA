@@ -242,14 +242,15 @@
 
     const list = el("ul", { class: "options" });
     const selected = new Set(opts.preselected || []);
+    const eliminated = new Set(opts.eliminated || []);
     const buttons = [];
 
     q.options.forEach(function (opt, i) {
-      const li = el("li");
+      const li = el("li", { class: "option-wrapper" });
       const btn = el(
         "button",
         {
-          class: "option" + (selected.has(i) ? " option--selected" : ""),
+          class: "option" + (selected.has(i) ? " option--selected" : "") + (eliminated.has(i) ? " option--eliminated" : ""),
           attrs: { type: "button", "aria-pressed": selected.has(i) ? "true" : "false" }
         },
         [
@@ -275,11 +276,39 @@
       });
       buttons.push(btn);
       li.appendChild(btn);
+
+      // Bouton Strikethrough pour éliminer les options fausses
+      const strikeBtn = el("button", {
+        class: "option-strike-btn",
+        attrs: {
+          type: "button",
+          title: S.lang === "fr" ? "Barrer / Éliminer cette option" : "Strikethrough / Eliminate option",
+          "aria-label": "Strikethrough option " + "ABCD"[i]
+        }
+      }, [el("span", { text: "✕" })]);
+
+      strikeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        if (eliminated.has(i)) {
+          eliminated.delete(i);
+          btn.classList.remove("option--eliminated");
+        } else {
+          eliminated.add(i);
+          btn.classList.add("option--eliminated");
+        }
+      });
+      li.appendChild(strikeBtn);
       list.appendChild(li);
     });
     host.appendChild(list);
 
     return {
+      selectOption: function (idx) {
+        if (buttons[idx] && !buttons[idx].disabled) {
+          buttons[idx].click();
+        }
+      },
       getSelected: function () {
         return Array.from(selected);
       },
@@ -546,6 +575,10 @@
     function render() {
       clear(host);
 
+      const answeredCount = Object.keys(answers).length;
+      const flaggedCount = Object.keys(flags).filter(function (k) { return flags[k]; }).length;
+      const remainingCount = queue.length - answeredCount;
+
       const bar = el("div", { class: "exam-bar" });
       bar.appendChild(
         el("span", {
@@ -554,12 +587,14 @@
           text: fmtTime(remaining)
         })
       );
-      bar.appendChild(
-        el("span", {
-          class: "muted",
-          text: Object.keys(answers).length + " / " + queue.length + (S.lang === "fr" ? " répondues" : " answered")
-        })
-      );
+
+      const statBadges = el("div", { class: "btn-row" });
+      statBadges.appendChild(el("span", { class: "badge badge--primary", text: answeredCount + " " + (S.lang === "fr" ? "répondues" : "answered") }));
+      if (flaggedCount > 0) {
+        statBadges.appendChild(el("span", { class: "badge badge--warn", text: flaggedCount + " " + (S.lang === "fr" ? "marquées" : "flagged") }));
+      }
+      statBadges.appendChild(el("span", { class: "badge", text: remainingCount + " " + (S.lang === "fr" ? "restantes" : "remaining") }));
+      bar.appendChild(statBadges);
 
       const nav = el("div", { class: "qnav" });
       queue.forEach(function (_, i) {
@@ -591,10 +626,40 @@
       bar.appendChild(end);
       host.appendChild(bar);
 
-      const card = el("div", { class: "card" });
-      host.appendChild(card);
-
       const q = queue[cur];
+
+      // Support Split-View si la question est rattachée à une étude de cas officielle
+      let mainContainer = host;
+      if (q.caseStudy && window.PCA_CASES) {
+        const caseData = window.PCA_CASES.find(function (c) { return c.id === q.caseStudy; });
+        if (caseData) {
+          const splitWrap = el("div", { class: "split-view" });
+          const leftPanel = el("div", { class: "card split-panel stack" });
+          leftPanel.appendChild(el("span", { class: "badge badge--primary", text: S.lang === "fr" ? "Étude de cas officielle (écran partagé)" : "Official Case Study (Split Screen)" }));
+          leftPanel.appendChild(el("h3", { text: caseData.name }));
+          leftPanel.appendChild(el("p", { class: "muted", text: caseData.sector }));
+          leftPanel.appendChild(el("p", { text: caseData.profile }));
+
+          leftPanel.appendChild(el("h4", { text: S.lang === "fr" ? "Exigences & Vigilance :" : "Key requirements :" }));
+          const ulW = el("ul");
+          caseData.watch.forEach(function (w) { ulW.appendChild(el("li", { text: w })); });
+          leftPanel.appendChild(ulW);
+
+          leftPanel.appendChild(el("h4", { text: S.lang === "fr" ? "Réflexes d'architecture attendus :" : "Architectural reflexes :" }));
+          const ulR = el("ul");
+          caseData.reflexes.forEach(function (r) { ulR.appendChild(el("li", { text: r })); });
+          leftPanel.appendChild(ulR);
+
+          splitWrap.appendChild(leftPanel);
+          mainContainer = el("div", { class: "stack" });
+          splitWrap.appendChild(mainContainer);
+          host.appendChild(splitWrap);
+        }
+      }
+
+      const card = el("div", { class: "card" });
+      mainContainer.appendChild(card);
+
       const ctrl = renderQuestion(card, q, {
         position: cur + 1 + " " + L(T.of) + " " + queue.length,
         preselected: answers[cur] || [],
@@ -604,12 +669,11 @@
           render();
         }
       });
-      void ctrl;
 
       const row = el("div", { class: "btn-row" });
       const prev = el("button", {
         class: "btn btn--ghost",
-        text: S.lang === "fr" ? "Précédente" : "Previous",
+        text: S.lang === "fr" ? "← Précédente [P]" : "← Previous [P]",
         attrs: { type: "button" }
       });
       prev.disabled = cur === 0;
@@ -621,7 +685,7 @@
 
       const flag = el("button", {
         class: "btn btn--ghost",
-        text: L(T.flag),
+        text: (flags[cur] ? "★ " : "☆ ") + L(T.flag) + " [F]",
         attrs: { type: "button", "aria-pressed": flags[cur] ? "true" : "false" }
       });
       flag.addEventListener("click", function () {
@@ -631,7 +695,7 @@
 
       const next = el("button", {
         class: "btn btn--primary",
-        text: S.lang === "fr" ? "Suivante" : "Next",
+        text: (cur >= queue.length - 1) ? (S.lang === "fr" ? "Finir" : "Finish") : (S.lang === "fr" ? "Suivante [N] →" : "Next [N] →"),
         attrs: { type: "button" }
       });
       next.disabled = cur >= queue.length - 1;
@@ -645,6 +709,23 @@
       row.appendChild(flag);
       row.appendChild(next);
       card.appendChild(row);
+
+      // Gestionnaire global des raccourcis clavier
+      if (!window._examKeyHandlerBound) {
+        window._examKeyHandlerBound = true;
+        document.addEventListener("keydown", function (e) {
+          if (finished) return;
+          const k = e.key.toUpperCase();
+          if (k === "A" || k === "1") { e.preventDefault(); if (window._currentExamCtrl) window._currentExamCtrl.selectOption(0); }
+          else if (k === "B" || k === "2") { e.preventDefault(); if (window._currentExamCtrl) window._currentExamCtrl.selectOption(1); }
+          else if (k === "C" || k === "3") { e.preventDefault(); if (window._currentExamCtrl) window._currentExamCtrl.selectOption(2); }
+          else if (k === "D" || k === "4") { e.preventDefault(); if (window._currentExamCtrl) window._currentExamCtrl.selectOption(3); }
+          else if (k === "F") { e.preventDefault(); flags[cur] = !flags[cur]; render(); }
+          else if ((k === "N" || e.key === "ArrowRight") && cur < queue.length - 1) { e.preventDefault(); cur++; render(); window.scrollTo({ top: 0 }); }
+          else if ((k === "P" || e.key === "ArrowLeft") && cur > 0) { e.preventDefault(); cur--; render(); window.scrollTo({ top: 0 }); }
+        });
+      }
+      window._currentExamCtrl = ctrl;
     }
 
     function finish() {
@@ -747,6 +828,7 @@
   function initDashboard() {
     const statHost = $("#stats");
     if (statHost) {
+      clear(statHost);
       const answered = Object.keys(S.answers).length;
       const okCount = Object.keys(S.answers).filter(function (k) {
         return S.answers[k].ok;
@@ -755,19 +837,66 @@
         return Math.max(m, pct(e.score, e.total));
       }, 0);
 
+      // Calcul de l'indice de préparation global (Readiness Score sur 100)
+      const coverageRate = pct(answered, Q.length);
+      const successRate = answered > 0 ? pct(okCount, answered) : 0;
+      const lastExam = S.exams.length ? S.exams[S.exams.length - 1] : null;
+      const lastExamScore = lastExam ? pct(lastExam.score, lastExam.total) : 0;
+      const readiness = Math.min(100, Math.round((coverageRate * 0.35) + (successRate * 0.35) + (lastExamScore * 0.30)));
+
+      // Statut de préparation
+      let statusLabel = S.lang === "fr" ? "Démarrage des révisions" : "Starting out";
+      let statusColor = "var(--c-fg-muted)";
+      if (readiness >= 75) {
+        statusLabel = S.lang === "fr" ? "Niveau Examen Atteint (Prêt)" : "Exam Ready";
+        statusColor = "var(--c-accent)";
+      } else if (readiness >= 50) {
+        statusLabel = S.lang === "fr" ? "Bonne progression" : "Solid progress";
+        statusColor = "var(--c-primary)";
+      } else if (readiness >= 25) {
+        statusLabel = S.lang === "fr" ? "En consolidation" : "In progress";
+        statusColor = "var(--c-warning)";
+      }
+
+      // Carte Hero : Jauge circulaire de préparation
+      const hero = el("div", { class: "stat", attrs: { style: "grid-column: 1 / -1; display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; background: linear-gradient(135deg, var(--c-card), var(--c-bg-alt));" } });
+      
+      const heroText = el("div", { class: "stack-sm" });
+      heroText.appendChild(el("div", { class: "stat__label", text: S.lang === "fr" ? "Indice de préparation global (Readiness Score)" : "Overall Readiness Index" }));
+      heroText.appendChild(el("div", { class: "stat__value", attrs: { style: "color:" + statusColor }, text: readiness + " / 100" }));
+      heroText.appendChild(el("div", { class: "badge badge--primary", text: statusLabel }));
+      heroText.appendChild(el("p", { class: "muted", attrs: { style: "font-size:0.85rem;margin-top:0.5rem" }, text: S.lang === "fr" ? "Synthèse pondérée : couverture de la banque (35%), taux de succès (35%), et dernier examen blanc (30%)." : "Weighted metrics: question bank coverage (35%), accuracy (35%), and latest mock exam (30%)." }));
+      hero.appendChild(heroText);
+
+      // SVG Circle Gauge
+      const r = 40;
+      const c = 2 * Math.PI * r;
+      const offset = c - (readiness / 100) * c;
+      const gaugeWrap = el("div", { class: "gauge-container" });
+      gaugeWrap.innerHTML = `
+        <svg class="gauge-svg" viewBox="0 0 100 100">
+          <circle class="gauge-bg" cx="50" cy="50" r="${r}"></circle>
+          <circle class="gauge-fill" cx="50" cy="50" r="${r}" style="stroke-dasharray:${c};stroke-dashoffset:${offset};stroke:${statusColor}"></circle>
+        </svg>
+      `;
+      hero.appendChild(gaugeWrap);
+      statHost.appendChild(hero);
+
+      // Cartes métriques détaillées
       const cards = [
-        { label: { fr: "Questions traitées", en: "Questions attempted" }, value: answered + " / " + Q.length },
-        { label: { fr: "Taux de réussite", en: "Success rate" }, value: pct(okCount, answered || 1) + " %" },
-        { label: { fr: "Examens blancs", en: "Mock exams" }, value: String(S.exams.length) },
-        { label: { fr: "Meilleur score", en: "Best score" }, value: best + " %" }
+        { label: { fr: "Questions traitées", en: "Questions attempted" }, value: answered + " / " + Q.length, hint: coverageRate + "% " + (S.lang === "fr" ? "couverture" : "covered") },
+        { label: { fr: "Taux de réussite", en: "Success rate" }, value: successRate + " %", hint: okCount + " " + (S.lang === "fr" ? "correctes" : "correct") },
+        { label: { fr: "Examens blancs", en: "Mock exams completed" }, value: String(S.exams.length), hint: (S.exams.length > 0 ? (S.lang === "fr" ? "Dernier: " : "Latest: ") + lastExamScore + "%" : (S.lang === "fr" ? "Aucun complété" : "None")) },
+        { label: { fr: "Meilleur score", en: "Best mock score" }, value: best + " %", hint: S.lang === "fr" ? "Cible : ≥ 75%" : "Target: ≥ 75%" }
       ];
+
       cards.forEach(function (c) {
-        statHost.appendChild(
-          el("div", { class: "stat" }, [
-            el("div", { class: "stat__label", text: L(c.label) }),
-            el("div", { class: "stat__value", text: c.value })
-          ])
-        );
+        const item = el("div", { class: "stat" }, [
+          el("div", { class: "stat__label", text: L(c.label) }),
+          el("div", { class: "stat__value", text: c.value }),
+          el("div", { class: "stat__hint", text: c.hint })
+        ]);
+        statHost.appendChild(item);
       });
     }
 
